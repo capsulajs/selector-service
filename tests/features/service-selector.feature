@@ -1,24 +1,46 @@
 
 
-Scenario: Call setItemsStream with stream of items when Selector instance is empty
+Scenario: Call setItemsStream with stream of items and get items at subscription after one emission
     Given Selector Service with setItemsStream method
-    When  user calls setItemsStream with a stream of items
-    Then  all items are being loaded in the Selector instance
-    And   subscribing to items method returns the stored items
+    And   user calls setItemsStream with a stream X
+    And   stream X emits [A, B, C]
+    When  user subscribes to items$
+    Then  user receives [A, B, C]
 
-Scenario: Call setItemsStream with a stream of new items when Selector instance is not empty
-    Given  Selector Service with setItemsStream method
-    And    several items are stored in the Selector instance
-    When   user calls setItemsStream with a stream of items that do not exist in the Selector instance
-    Then   the old items are replaced with the new items
-    And    subscribing to items method returns only the new stored ones
+Scenario: Call setItemsStream with stream of items and get items at subscription after two emissions
+    Given Selector Service with setItemsStream method
+    And   user calls setItemsStream with a stream X
+    And   stream X emits [A, B, C]
+    And   stream X emits [D, E, F]
+    When  user subscribes to items$
+    Then  user receives [D, E, F]
 
- Scenario: Call setItemsStream with a stream of items already stored in the Selector instance
+Scenario: Call setItemsStream with stream of items and get items after subscription and two emissions
+    Given Selector Service with setItemsStream method
+    And   user calls setItemsStream with a stream X
+    And   stream X emits [A, B, C]
+    And   user subscribes to items$
+    And   user receives [A, B, C]
+    When  stream X emits [D, E, F]
+    Then  user receives [D, E, F]
+
+Scenario: Call successively setItemsStream with two streams of items
     Given  Selector Service with setItemsStream method
-    And    several items are stored in the Selector instance
-    When   user calls setItemsStream with a stream containing the same items
-    Then   the old items are replaced with the new items
-    And    subscribing to items method returns only the new stored ones
+    And    user calls setItemsStream with a stream X
+    And    stream X emits [A, B, C]
+    When   user calls setItemsStream with a stream Y
+    And    user subscribes to items$
+    And    stream Y emits [D, E, F]
+    Then   user receives [D, E, F]
+
+ Scenario: Call successively setItemsStream with two identical streams of items
+    Given  Selector Service with setItemsStream method
+    And    user calls setItemsStream with a stream X
+    And    stream X emits [A, B, C]
+    And    user calls setItemsStream with a stream Y
+    And    user subscribes to items$
+    When   stream Y emits [A, B, C]
+    Then   user receives [A, B, C]
 
 Scenario: Call setItemsStream with invalid items stream
    Given Selector Service with setItemsStream method
@@ -31,21 +53,15 @@ Scenario: Call setItemsStream with invalid items stream
          |true              |
          |{}                |
          |{ test: 'test'}   |
-   Then the call is rejected with a relevant error
-
-Scenario: items$ returns all items stored in the Selector Service
-    Given  Selector Service with items method
-    And    several items are stored in the Selector instance
-    When   user subscribes to items method with a valid request
-    Then   the subscription will emit all stored items
-    And    if new items are loaded meanwhile, the subscription will emit them as well
+   Then  the promise is rejected with a relevant error
 
 Scenario: selectItem selects one of the stored items in the Selector by key
-    Given Selector Service with selectItem method
-    And   several items are stored in the Selector instance
-    When  user calls selectItem method with the key of one of the stored items
-    Then  the relevant item is selected
-    And   subscribing to selectItem will return the selected item
+    Given  Selector Service with selectItem method
+    And    user calls setItemsStream with a stream X
+    And    stream X emits [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+    When   user calls selectItem method with {key: A}
+    Then   the item A is selected
+    And    subscribing to selectedItem will return the item A
 
 Scenario: Call selectItem with invalid key
      Given Selector Service with selectItem method
@@ -58,23 +74,25 @@ Scenario: Call selectItem with invalid key
          |true              |
          |{}                |
          |{ test: 'test'}   |
-     Then the call is rejected with a relevant error
+     Then the promise is rejected with a relevant error
 
 Scenario: Call selectItem with a non-existent key
-    Given Selector Service with selectItem method
-    And   several items are stored in the Selector instance
-    When  user calls selectItem method with the key of an item that doesn't exist in the Selector instance
-    Then  the call is rejected with a relevant error
+    Given  Selector Service with selectItem method
+    And    user calls setItemsStream with a stream X
+    And    stream X emits [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+    When   user calls selectItem method with {key: D}
+    Then   the promise is rejected with a relevant error
 
 Scenario: selectedItems$ returns the selected item
     Given Selector Service with selectedItem method
-    And   item1 and item2 are stored in the Selector instance
-    When  user subscribes to selectedItem method
-    And   <item> is selected
-         |<item>|
-         |none  |
-         |item1 |
-         |item2 |
-    Then  selectedItem subscription emits the result according to the selection
+    And    user calls setItemsStream with a stream X
+    And    stream X emits [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+    And    user subscribes to selectedItem method
+    When   <item> is selected
+         |<item>    |
+         |{key: A}  |
+         |{key: B}  |
+         |{key: C}  |
+    Then  selectedItem subscription emits successively the items A, B and C
 
 
