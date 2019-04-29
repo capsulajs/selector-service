@@ -1,0 +1,30 @@
+{
+  "name": "selector-service",
+  "version": "0.0.1",
+  "description": "Selector service for the CapsulaHub https://github.com/capsulajs/capsula-hub",
+  "main": "index.js",
+  "repository": "https://github.com/capsulajs/selector-service",
+  "license": "MIT",
+  "private": false,
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.12",
+    "codacy-coverage": "^3.4.0",
+    "husky": "^2.1.0",
+    "jest": "^24.7.1",
+    "parcel": "^1.12.3",
+    "prettier": "^1.17.0",
+    "pretty-quick": "^1.10.0",
+    "remark-cli": "^6.0.1",
+    "remark-lint": "^6.0.4",
+    "remark-preset-lint-recommended": "^3.0.2",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "ts-lint": "^4.5.1",
+    "typescript": "^3.4.5"
+  }
+}
