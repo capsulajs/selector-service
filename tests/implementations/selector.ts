@@ -1,4 +1,4 @@
-import { from, Subject } from 'rxjs';
+import { BehaviorSubject, from, Subject } from 'rxjs';
 
 describe('Selector service test suite', () => {
   let selector: SelectorService;
@@ -44,7 +44,7 @@ describe('Selector service test suite', () => {
     expect.assertions(1);
     const mockedStream = from(mockedItems1234);
     await selector.setItemsStream({ items$: mockedStream });
-    selector.items$({}).subscribe((items: any[]) => {
+    selector.items$({}).subscribe((items: any) => {
       expect(items).toEqual(mockedItems1234);
       done();
     });
@@ -52,25 +52,24 @@ describe('Selector service test suite', () => {
 
   it('Call setItemsStream with stream of items and get items at subscription after two emissions', async (done) => {
     expect.assertions(1);
-    const flow = new Subject();
-    flow.subscribe((items: any) => {
-      selector.setItemsStream({ items$: items });
-    });
-    flow.next(from(mockedItems1234));
+    const stream = new BehaviorSubject({});
+    selector.setItemsStream({ items$: stream });
+    stream.next(mockedItems1234);
+    stream.next(mockedItems5678);
+
     selector.items({}).subscribe((items: any) => {
       expect(items).toEqual(mockedItems5678);
       done();
     });
-    flow.next(from(mockedItems5678));
   });
 
   it('Call setItemsStream with stream of items and get items after subscription and two emissions', async (done) => {
     expect.assertions(2);
-    const flow = new Subject();
-    flow.subscribe((items: any) => {
-      selector.setItemsStream({ items$: items });
-    });
+    const stream = new BehaviorSubject({});
+    selector.setItemsStream({ items$: stream });
+    stream.next(mockedItems1234);
     let count = 0;
+
     selector.items({}).subscribe((items: any) => {
       switch (count) {
         case 0:
@@ -82,8 +81,8 @@ describe('Selector service test suite', () => {
       }
       count = count + 1;
     });
-    flow.next(from(mockedItems1234));
-    flow.next(from(mockedItems5678));
+
+    stream.next(mockedItems5678);
   });
 
   it('Call successively setItemsStream with two streams of items', async () => {
@@ -117,13 +116,14 @@ describe('Selector service test suite', () => {
     });
   });
 
-  it('selectItem selects one of the stored items in the Selector by key', async () => {
+  it('selectItem selects one of the stored items in the Selector by key', async (done) => {
     expect.assertions(1);
     await selector.setItemsStream({ items$: from(mockedItems1234) });
-    await selector.selectItem({ key: { itemKey: 'item1' } });
     selector.selectedItem$.subscribe((item) => {
-      expect(item).toEqual(mockedItems1234[0][0]); // { itemKey: 'item1', itemValue: 'some value of item1' }
+      expect(item).toEqual(mockedItems1234[0][0]);
+      done();
     });
+    await selector.selectItem({ key: { itemKey: 'item1' } });
   });
 
   it('Call selectItem with invalid key', async () => {
