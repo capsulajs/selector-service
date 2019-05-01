@@ -10,11 +10,12 @@ branches:
 install:
   - yarn install --production=false
 
-# script:
-# - yarn lint
-# - yarn build
-# - yarn test
-# - yarn doc
+script:
+  - echo "Travis init"
+  # - yarn lint
+  # - yarn build
+  # - yarn test
+  # - yarn doc
 
 notifications:
   email:
