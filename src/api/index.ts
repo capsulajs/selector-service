@@ -1,6 +1,6 @@
 export {
   Selector as SelectorInterface,
-  SetItemsStreamRequest,
+  SetItemsRequest,
   ItemsRequest,
   SelectItemRequest,
   SelectedItemRequest,
