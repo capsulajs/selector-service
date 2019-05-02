@@ -11,8 +11,7 @@ install:
   - yarn install --production=false
 
 script:
-  - echo "Travis init"
-  # - yarn lint
+  - yarn lint
   # - yarn build
   # - yarn test
   # - yarn doc
