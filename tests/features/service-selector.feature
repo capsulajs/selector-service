@@ -23,7 +23,7 @@ Scenario: Call setItems with invalid items
          |true              |
          |{}                |
          |{ test: 'test'}   |
-   Then  the promise is rejected with a relevant error
+   Then  the promise is rejected with an invalidSetItemsRequest error
 
 Scenario: selectItem selects one of the stored items in the Selector by key
     Given  Selector Service with selectItem method
@@ -43,13 +43,13 @@ Scenario: Call selectItem with invalid key
          |true              |
          |{}                |
          |{ test: 'test'}   |
-     Then the promise is rejected with a relevant error
+     Then the promise is rejected with an invalidSelectItemRequest error
 
 Scenario: Call selectItem with a non-existent key
     Given  Selector Service with selectItem method
     And    user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
     When   user calls selectItem method with {key: D}
-    Then   the promise is rejected with a relevant error
+    Then   the promise is rejected with an itemNotFound error
 
 Scenario: selectedItems$ returns the selected item
     Given Selector Service with selectedItem method
@@ -62,4 +62,9 @@ Scenario: selectedItems$ returns the selected item
          |{key: C}  |
     Then  selectedItem subscription emits successively the items A, B and C
 
-
+Scenario: Call selectItem with currently selected item
+  Given  Selector Service with selectItem method
+  And    user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+  And    user calls selectItem method with {key: A}
+  When   user calls selectItem method with {key: A} again
+  Then   the promise is rejected with an itemAlreadySelected error
