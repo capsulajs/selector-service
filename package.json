@@ -11,7 +11,8 @@
     "lint:md": "remark . --output",
     "lint:ts": "tslint --project tsconfig.lint.json",
     "lint:fix": "yarn lint --fix",
-    "prettier": "prettier --write '{src,tests}/**/*.{ts,tsx,js,jsx}'"
+    "prettier": "prettier --write '{src,tests}/**/*.{ts,tsx,js,jsx}'",
+    "test": "jest --maxWorkers=4 --env=jsdom"
   },
   "husky": {
     "hooks": {

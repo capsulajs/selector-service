@@ -1,7 +1,7 @@
-import { BehaviorSubject, from } from 'rxjs';
 import { Selector as SelectorInterface } from '../../src/api/Selector';
 import { avengers, beatles, Character, SimpleCharacterKey } from '../mocks/items';
 import { Selector } from '../../src';
+import { errorMessages, validationMessages } from '../../src/helpers/messages';
 
 describe('Selector service test suite', () => {
   let selector: SelectorInterface<Character, SimpleCharacterKey>;
@@ -40,60 +40,70 @@ describe('Selector service test suite', () => {
     await selector.setItems({ items: avengers });
   });
 
-  it('Call setItems with invalid items', async () => {
-    expect.assertions(7);
-    const invalidItemsStreams = [null, undefined, 123, [], true, {}, { test: 'test' }];
-    invalidItemsStreams.forEach(async (stream: any) => {
-      const items$ = from(stream);
-      await expect(selector.setItems({ items$ })).rejects.toEqual(invalidSetItemsStreamRequest);
-    });
+  const invalidItems = [null, undefined, 123, true, {}, { test: 'test' }];
+
+  it.each(invalidItems)('Call setItems with invalid items: %j', async (items) => {
+    expect.assertions(1);
+    // @ts-ignore
+    return expect(selector.setItems({ items })).rejects.toEqual(new Error(validationMessages.invalidSetItemsRequest));
   });
 
   it('selectItem selects one of the stored items in the Selector by key', async (done) => {
     expect.assertions(1);
-    await selector.setItems({ items$: from(mockedItems1234) });
-    selector.selectedItem$.subscribe((item) => {
-      expect(item).toEqual(mockedItems1234[0][0]);
+    await selector.setItems({ items: beatles });
+    await selector.selectItem({ key: { name: 'Paul' } });
+    selector.selectedItem$({}).subscribe((item: any) => {
+      expect(item).toEqual(beatles[1]);
       done();
     });
-    await selector.selectItem({ key: { itemKey: 'item1' } });
   });
 
-  it('Call selectItem with invalid key', async () => {
-    expect.assertions(7);
-    const invalidSelectItemRequestKey = [null, undefined, 123, [], true, {}, { test: 'test' }];
-    invalidSelectItemRequestKey.forEach(async (key: any) => {
-      const request = { key };
-      await expect(selector.selectItem({ request })).rejects.toEqual(invalidSelectItemRequest);
-    });
+  const invalidSelectItemRequestKey = [null, undefined, 123, [], true, {}, { test: 'test' }];
+
+  it.each(invalidSelectItemRequestKey)('Call selectItem with invalid key', async (key) => {
+    expect.assertions(1);
+    // @ts-ignore
+    await expect(selector.selectItem({ key })).rejects.toEqual(validationMessages.invalidSelectItemRequest);
   });
 
   it('Call selectItem with a non-existent key', async () => {
     expect.assertions(1);
-    await selector.setItems({ items$: from(mockedItems1234) });
-    await expect(selector.selectItem({ key: { itemKey: 'item5' } })).rejects.toEqual(itemNotFound);
+    await selector.setItems({ items: beatles });
+    await expect(selector.selectItem({ key: { name: 'Freddy' } })).rejects.toEqual(errorMessages.itemNotFound);
   });
 
   it('selectedItems$ returns the selected item', async (done) => {
     expect.assertions(3);
-    await selector.setItems({ items$: from(mockedItems1234) });
+    await selector.setItems({ items: beatles });
     let count = 0;
-    selector.selectedItem$.subscribe((item) => {
+    selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual(mockedItems1234[0][0]);
+          expect(item).toEqual(beatles[0]);
           break;
         case 1:
-          expect(item).toEqual(mockedItems1234[0][1]);
+          expect(item).toEqual(beatles[1]);
           break;
         case 2:
-          expect(item).toEqual(mockedItems1234[0][2]);
+          expect(item).toEqual(beatles[2]);
           done();
       }
       count = count + 1;
     });
-    await selector.selectItem({ key: { itemKey: 'item1' } });
-    await selector.selectItem({ key: { itemKey: 'item2' } });
-    await selector.selectItem({ key: { itemKey: 'item3' } });
+    await selector.selectItem({ key: { name: 'John' } });
+    await selector.selectItem({ key: { name: 'Paul' } });
+    await selector.selectItem({ key: { name: 'George' } });
+  });
+
+  it('Call selectItem with currently selected item', async () => {
+    expect.assertions(1);
+    await selector.setItems({ items: beatles });
+    await selector.selectItem({ key: { name: 'Ringo' } });
+    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(errorMessages.itemAlreadySelected);
+  });
+
+  it('Call selectItem when no data in selector', async () => {
+    expect.assertions(1);
+    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(errorMessages.noData);
   });
 });
