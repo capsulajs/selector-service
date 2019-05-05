@@ -8,9 +8,6 @@ import { Observable } from 'rxjs';
 export interface Selector<Item extends Key, Key> {
   /**
    * @typeparam SetItemsRequest
-   *
-   * The provided stream must be an array of items to be able to perform the selection later.
-   *
    * @return A Promise that resolves without specific information.
    * Can be rejected in case of invalid argument is passed.
    */
@@ -36,7 +33,7 @@ export interface Selector<Item extends Key, Key> {
 }
 
 export interface SetItemsRequest<Item> {
-  items$: Observable<Item[]>;
+  items$: Item[];
 }
 
 export interface ItemsRequest {}
