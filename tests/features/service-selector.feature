@@ -68,3 +68,9 @@ Scenario: Call selectItem with currently selected item
   And    user calls selectItem method with {key: A}
   When   user calls selectItem method with {key: A} again
   Then   the promise is rejected with an itemAlreadySelected error
+
+Scenario: Call selectItem when no data in selector
+  Given  Selector Service with selectItem method
+  And    user doesn't call setItems
+  When   user calls selectItem method with {key: A}
+  Then   the promise is rejected with an noData error
