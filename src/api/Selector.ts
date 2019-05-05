@@ -33,7 +33,7 @@ export interface Selector<Item extends Key, Key> {
 }
 
 export interface SetItemsRequest<Item> {
-  items$: Item[];
+  items: Item[];
 }
 
 export interface ItemsRequest {}
