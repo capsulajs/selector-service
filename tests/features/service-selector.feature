@@ -33,22 +33,26 @@ Scenario: selectItem selects one of the stored items in the Selector by key
     And    subscribing to selectedItem will return the item A
 
 Scenario: Call selectItem with invalid key
-     Given Selector Service with selectItem method
-     And   user calls selectItem with an invalid <key>
-         |<key>             |
-         |null              |
-         |undefined         |
-         |123               |
-         |[]                |
-         |true              |
-         |{}                |
-         |{ test: 'test'}   |
+    Given Selector Service with selectItem method
+    And   user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+    When  user calls selectItem with an invalid <key>
+         |<key>      |
+         |null       |
+         |undefined  |
+         |123        |
+         |[]         |
+         |true       |
+         |{}         |
      Then the promise is rejected with an invalidSelectItemRequest error
 
 Scenario: Call selectItem with a non-existent key
     Given  Selector Service with selectItem method
     And    user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
-    When   user calls selectItem method with {key: D}
+    When   user calls selectItem method with a non existing <key>
+          |<key>                    |
+          |{ key: D }               |
+          |{ test: 'test' }         |
+          |{ test: 'test', key: B } |
     Then   the promise is rejected with an itemNotFound error
 
 Scenario: selectedItems$ returns the selected item
