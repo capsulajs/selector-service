@@ -60,31 +60,37 @@ describe('Selector service test suite', () => {
 
   const invalidSelectItemRequestKey = [null, undefined, 123, [], true, {}, { test: 'test' }];
 
-  it.each(invalidSelectItemRequestKey)('Call selectItem with invalid key', async (key) => {
+  it.each(invalidSelectItemRequestKey)('Call selectItem with invalid key: %j', async (key) => {
     expect.assertions(1);
+    await selector.setItems({ items: beatles });
     // @ts-ignore
-    await expect(selector.selectItem({ key })).rejects.toEqual(validationMessages.invalidSelectItemRequest);
+    await expect(selector.selectItem({ key })).rejects.toEqual(new Error(validationMessages.invalidSelectItemRequest));
   });
 
   it('Call selectItem with a non-existent key', async () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
-    await expect(selector.selectItem({ key: { name: 'Freddy' } })).rejects.toEqual(errorMessages.itemNotFound);
+    await expect(selector.selectItem({ key: { name: 'Freddy' } })).rejects.toEqual(
+      new Error(errorMessages.itemNotFound)
+    );
   });
 
   it('selectedItems$ returns the selected item', async (done) => {
-    expect.assertions(3);
+    expect.assertions(4);
     await selector.setItems({ items: beatles });
     let count = 0;
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual(beatles[0]);
+          expect(item).toEqual({});
           break;
         case 1:
-          expect(item).toEqual(beatles[1]);
+          expect(item).toEqual(beatles[0]);
           break;
         case 2:
+          expect(item).toEqual(beatles[1]);
+          break;
+        case 3:
           expect(item).toEqual(beatles[2]);
           done();
       }
@@ -99,11 +105,13 @@ describe('Selector service test suite', () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
     await selector.selectItem({ key: { name: 'Ringo' } });
-    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(errorMessages.itemAlreadySelected);
+    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(
+      new Error(errorMessages.itemAlreadySelected)
+    );
   });
 
-  it('Call selectItem when no data in selector', async () => {
+  it('Call selectItem when no data in selector', () => {
     expect.assertions(1);
-    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(errorMessages.noData);
+    return expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(new Error(errorMessages.noData));
   });
 });
