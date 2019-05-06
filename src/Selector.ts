@@ -39,9 +39,9 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
       }
 
       const requestKeys = Object.keys(selectItemRequest.key);
-      // Reject case: Key is not a subset of Item
+      // Reject case: Item is already selected
       if (
-        requestKeys.every((requestKey: any) => {
+        requestKeys.every((requestKey: string) => {
           return (
             Object.keys(this.selected$.getValue()).includes(requestKey) &&
             // @ts-ignore
@@ -56,22 +56,17 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
         .pipe(
           take(1),
           map((items) =>
-            items.find((item, index) => {
-              const itemKeys = Object.keys(item);
-              return requestKeys.every((requestKey) => {
-                return itemKeys.some(
-                  (itemKey) =>
-                    itemKey.includes(requestKey) &&
-                    // @ts-ignore
-                    items[index][itemKey] === selectItemRequest.key[requestKey]
-                );
+            items.find((item: Item) => {
+              return requestKeys.every((requestKey: string) => {
+                // @ts-ignore
+                return item[requestKey] && item[requestKey] === selectItemRequest.key[requestKey];
               });
             })
           )
         )
         .subscribe((item: any) => {
           if (!item) {
-            // Rejection case: wanted Item not
+            // Rejection case: wanted Item not found
             return reject(new Error(errorMessages.itemNotFound));
           }
           this.selected$.next(item);
