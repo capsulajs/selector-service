@@ -38,7 +38,6 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
       if (!isValidSelectRequest(selectItemRequest)) {
         return reject(new Error(validationMessages.invalidSelectItemRequest));
       }
-
       // Reject case: Item is already selected
       if (isMatch(this.selected$.getValue() as any, selectItemRequest.key as any)) {
         return reject(new Error(errorMessages.itemAlreadySelected));

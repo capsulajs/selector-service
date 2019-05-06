@@ -58,7 +58,7 @@ describe('Selector service test suite', () => {
     });
   });
 
-  const invalidSelectItemRequestKey = [null, undefined, 123, [], true, {}, { test: 'test' }];
+  const invalidSelectItemRequestKey = [null, undefined, 123, [], true, {}];
 
   it.each(invalidSelectItemRequestKey)('Call selectItem with invalid key: %j', async (key) => {
     expect.assertions(1);
@@ -67,12 +67,13 @@ describe('Selector service test suite', () => {
     await expect(selector.selectItem({ key })).rejects.toEqual(new Error(validationMessages.invalidSelectItemRequest));
   });
 
-  it('Call selectItem with a non-existent key', async () => {
+  const nonExistentKeys = [{ test: 'test' }, { name: 'Freddy' }, { test: 'test', name: 'Ringo' }];
+
+  it.each(nonExistentKeys)('Call selectItem with a non-existent key: %j', async (key) => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
-    await expect(selector.selectItem({ key: { name: 'Freddy' } })).rejects.toEqual(
-      new Error(errorMessages.itemNotFound)
-    );
+    // @ts-ignore
+    await expect(selector.selectItem({ key })).rejects.toEqual(new Error(errorMessages.itemNotFound));
   });
 
   it('selectedItems$ returns the selected item', async (done) => {
