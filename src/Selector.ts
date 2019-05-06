@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { validationMessages, errorMessages } from './helpers/messages';
 import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
 import { map, take } from 'rxjs/operators';
+import isMatch from 'lodash/isMatch';
 
 export class Selector<Item extends Key, Key> implements SelectorInterface<Item, Key> {
   private readonly data$: BehaviorSubject<Item[]>;
@@ -38,16 +39,8 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
         return reject(new Error(validationMessages.invalidSelectItemRequest));
       }
 
-      const requestKeys = Object.keys(selectItemRequest.key);
       // Reject case: Item is already selected
-      if (
-        requestKeys.every((requestKey: string) => {
-          return (
-            Object.keys(this.selected$.getValue()).includes(requestKey) &&
-            (this.selected$.getValue() as any)[requestKey] === (selectItemRequest.key as any)[requestKey]
-          );
-        })
-      ) {
+      if (isMatch(this.selected$.getValue() as any, selectItemRequest.key as any)) {
         return reject(new Error(errorMessages.itemAlreadySelected));
       }
 
@@ -56,11 +49,7 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
           take(1),
           map((items) =>
             items.find((item: Item) => {
-              return requestKeys.every((requestKey: string) => {
-                return (
-                  (item as any)[requestKey] && (item as any)[requestKey] === (selectItemRequest.key as any)[requestKey]
-                );
-              });
+              return isMatch(item as any, selectItemRequest.key as any);
             })
           )
         )
