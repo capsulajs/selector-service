@@ -44,8 +44,7 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
         requestKeys.every((requestKey: string) => {
           return (
             Object.keys(this.selected$.getValue()).includes(requestKey) &&
-            // @ts-ignore
-            this.selected$.getValue()[requestKey] === selectItemRequest.key[requestKey]
+            (this.selected$.getValue() as any)[requestKey] === (selectItemRequest.key as any)[requestKey]
           );
         })
       ) {
@@ -58,8 +57,9 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
           map((items) =>
             items.find((item: Item) => {
               return requestKeys.every((requestKey: string) => {
-                // @ts-ignore
-                return item[requestKey] && item[requestKey] === selectItemRequest.key[requestKey];
+                return (
+                  (item as any)[requestKey] && (item as any)[requestKey] === (selectItemRequest.key as any)[requestKey]
+                );
               });
             })
           )
