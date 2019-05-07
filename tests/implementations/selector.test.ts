@@ -115,4 +115,61 @@ describe('Selector service test suite', () => {
     expect.assertions(1);
     return expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(new Error(errorMessages.noData));
   });
+
+  it('Preserve selectedItem$ after setItems if the selected item is in the new set', async (done) => {
+    expect.assertions(3);
+    let count = 0;
+    selector.selectedItem$({}).subscribe((item) => {
+      switch (count) {
+        case 0:
+          expect(item).toEqual({});
+          break;
+        case 1:
+          expect(item).toEqual(avengers[2]);
+          break;
+        case 2:
+          expect(item).toEqual(asgardians[1]);
+          done();
+      }
+      count = count + 1;
+    });
+    await selector.setItems({ items: avengers });
+    await selector.selectItem({ key: { name: 'Chris Hemsworth' } });
+    const asgardians = [
+      { name: 'Chris Hemsworth', birth: 1983, role: 'Thor' },
+      { name: 'Anthony Hopkins', birth: 1937, role: 'Odin' },
+    ];
+    await selector.setItems({ items: asgardians });
+    await selector.selectItem({ key: { name: 'Anthony Hopkins' } });
+  });
+
+  it('Reset selectedItem$ after setItems if the selected item is not in the new set', async (done) => {
+    expect.assertions(4);
+    let count = 0;
+    selector.selectedItem$({}).subscribe((item) => {
+      switch (count) {
+        case 0:
+          expect(item).toEqual({});
+          break;
+        case 1:
+          expect(item).toEqual(avengers[2]);
+          break;
+        case 2:
+          expect(item).toEqual({});
+          break;
+        case 3:
+          expect(item).toEqual(asgardians[1]);
+          done();
+      }
+      count = count + 1;
+    });
+    await selector.setItems({ items: avengers });
+    await selector.selectItem({ key: { name: 'Chris Hemsworth' } });
+    const asgardians = [
+      { name: 'Idris Elba', birth: 1972, role: 'Heimdall' },
+      { name: 'Anthony Hopkins', birth: 1937, role: 'Odin' },
+    ];
+    await selector.setItems({ items: asgardians });
+    await selector.selectItem({ key: { name: 'Anthony Hopkins' } });
+  });
 });
