@@ -78,3 +78,23 @@ Scenario: Call selectItem when no data in selector
   And    user doesn't call setItems
   When   user calls selectItem method with {key: A}
   Then   the promise is rejected with an noData error
+
+Scenario: Preserve selectedItem$ after setItems if the selected item is in the new set
+  Given   Selector Service with setItems, selectItem and selectedItem$ methods
+  And     user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+  And     user calls selectItem method with {key: A}
+  And     user subscribes to selectedItem$ method
+  And     selectedItem$ emits item A
+  When    user calls setItems with [{key: A, value: valueA}, {key: D, value: valueD}]
+  Then    selectedItem$ emits nothing
+  And     item A is still selected
+
+Scenario: Reset selectedItem$ after setItems if the selected item is not in the new set
+  Given   Selector Service with setItems, selectItem and selectedItem$ methods
+  And     user calls setItems with [{key: A, value: valueA}, {key: B, value: valueB}, {key: C, value: valueC}]
+  And     user calls selectItem method with {key: A}
+  And     user subscribes to selectedItem$ method
+  And     selectedItem$ emits item A
+  When    user calls setItems with [{key: D, value: valueD}, {key: E, value: valueE}, {key: F, value: valueF}]
+  Then    selectedItem$ emits {}
+  And     item A is no longer selected
