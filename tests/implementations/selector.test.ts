@@ -118,6 +118,7 @@ describe('Selector service test suite', () => {
 
   it('Preserve selectedItem$ after setItems if the selected item is in the new set', async (done) => {
     expect.assertions(3);
+    await selector.setItems({ items: avengers });
     let count = 0;
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
@@ -133,7 +134,6 @@ describe('Selector service test suite', () => {
       }
       count = count + 1;
     });
-    await selector.setItems({ items: avengers });
     await selector.selectItem({ key: { name: 'Chris Hemsworth' } });
     const asgardians = [
       { name: 'Chris Hemsworth', birth: 1983, role: 'Thor' },
@@ -145,6 +145,7 @@ describe('Selector service test suite', () => {
 
   it('Reset selectedItem$ after setItems if the selected item is not in the new set', async (done) => {
     expect.assertions(4);
+    await selector.setItems({ items: avengers });
     let count = 0;
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
@@ -163,7 +164,6 @@ describe('Selector service test suite', () => {
       }
       count = count + 1;
     });
-    await selector.setItems({ items: avengers });
     await selector.selectItem({ key: { name: 'Chris Hemsworth' } });
     const asgardians = [
       { name: 'Idris Elba', birth: 1972, role: 'Heimdall' },

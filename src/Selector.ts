@@ -4,6 +4,7 @@ import { validationMessages, errorMessages } from './helpers/messages';
 import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
 import { map, take } from 'rxjs/operators';
 import isMatch from 'lodash/isMatch';
+import isEmpty from 'lodash/isEmpty';
 
 export class Selector<Item extends Key, Key> implements SelectorInterface<Item, Key> {
   private readonly data$: BehaviorSubject<Item[]>;
@@ -18,6 +19,12 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
     return new Promise((resolve, reject) => {
       if (!isValidSetItemsRequest(setItemsRequest)) {
         return reject(new Error(validationMessages.invalidSetItemsRequest));
+      }
+      const selected = this.selected$.getValue();
+      const shouldKeepSelection =
+        !isEmpty(selected) && setItemsRequest.items.some((item) => isMatch(item as any, selected as any));
+      if (!shouldKeepSelection) {
+        this.selected$.next({} as Item);
       }
       this.data$.next(setItemsRequest.items);
       return resolve();
