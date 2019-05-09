@@ -20,12 +20,7 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
       if (!isValidSetItemsRequest(setItemsRequest)) {
         return reject(new Error(validationMessages.invalidSetItemsRequest));
       }
-      const selected = this.selected$.getValue();
-      const shouldKeepSelection =
-        !isEmpty(selected) && setItemsRequest.items.some((item) => isMatch(item as any, selected as any));
-      if (!shouldKeepSelection) {
-        this.selected$.next({} as Item);
-      }
+      this.resetSelected(setItemsRequest.items);
       this.data$.next(setItemsRequest.items);
       return resolve();
     });
@@ -72,5 +67,15 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
 
   public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item> {
     return this.selected$;
+  }
+
+  private resetSelected(items: Item[]): void {
+    const selected = this.selected$.getValue();
+    if (!isEmpty(selected)) {
+      const shouldKeepSelection = items.some((item) => isMatch(item as any, selected as any));
+      if (!shouldKeepSelection) {
+        this.selected$.next({} as Item);
+      }
+    }
   }
 }
