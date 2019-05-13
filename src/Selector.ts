@@ -1,18 +1,17 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, first } from 'rxjs/operators';
 import isMatch from 'lodash/isMatch';
-import isEmpty from 'lodash/isEmpty';
 import { ItemsRequest, SelectedItemRequest, SelectItemRequest, SelectorInterface, SetItemsRequest } from './api';
 import { validationMessages, errorMessages } from './helpers/messages';
 import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
 
 export class Selector<Item extends Key, Key extends object> implements SelectorInterface<Item, Key> {
   private readonly data$: BehaviorSubject<Item[]>;
-  private readonly selected$: BehaviorSubject<Item>;
+  private readonly selected$: BehaviorSubject<Item | undefined>;
 
   constructor() {
     this.data$ = new BehaviorSubject<Item[]>([]);
-    this.selected$ = new BehaviorSubject<Item>({} as Item);
+    this.selected$ = new BehaviorSubject<Item | undefined>(undefined);
   }
 
   public setItems(setItemsRequest: SetItemsRequest<Item>): Promise<void> {
@@ -41,7 +40,7 @@ export class Selector<Item extends Key, Key extends object> implements SelectorI
         return reject(new Error(validationMessages.invalidSelectItemRequest));
       }
       // Reject case: Item is already selected
-      if (isMatch(this.selected$.getValue(), selectItemRequest.key)) {
+      if (this.selected$.getValue() && isMatch(this.selected$.getValue() as Item, selectItemRequest.key)) {
         return reject(new Error(errorMessages.itemAlreadySelected));
       }
 
@@ -65,16 +64,16 @@ export class Selector<Item extends Key, Key extends object> implements SelectorI
     });
   }
 
-  public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item> {
+  public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item | undefined> {
     return this.selected$.asObservable();
   }
 
   private resetSelected(items: Item[]): void {
     const selected = this.selected$.getValue();
-    if (!isEmpty(selected)) {
+    if (selected) {
       const shouldKeepSelection = items.some((item) => isMatch(item, selected));
       if (!shouldKeepSelection) {
-        this.selected$.next({} as Item);
+        this.selected$.next(undefined);
       }
     }
   }

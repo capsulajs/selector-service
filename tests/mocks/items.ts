@@ -1,18 +1,3 @@
-export interface Character {
-  name: string;
-  role: string;
-  birth: number;
-}
-
-export interface SimpleCharacterKey {
-  name: string;
-}
-
-export interface ComplexCharacterKey {
-  name: string;
-  birth: number;
-}
-
 export const beatles = [
   { name: 'John', birth: 1940, role: 'singer / rhythm guitarist' },
   { name: 'Paul', birth: 1942, role: 'bassist / chore' },

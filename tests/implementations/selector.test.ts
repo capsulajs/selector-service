@@ -1,5 +1,6 @@
 import { Selector as SelectorInterface } from '../../src/api/Selector';
-import { avengers, beatles, Character, ComplexCharacterKey, SimpleCharacterKey } from '../mocks/items';
+import { avengers, beatles } from '../mocks/items';
+import { Character, ComplexCharacterKey, SimpleCharacterKey } from '../types';
 import { Selector } from '../../src';
 import { errorMessages, validationMessages } from '../../src/helpers/messages';
 
@@ -89,7 +90,7 @@ describe('Selector service test suite', () => {
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual({});
+          expect(item).toEqual(undefined);
           break;
         case 1:
           expect(item).toEqual(beatles[0]);
@@ -115,7 +116,7 @@ describe('Selector service test suite', () => {
     selectorWithComplexKey.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual({});
+          expect(item).toEqual(undefined);
           break;
         case 1:
           expect(item).toEqual(beatles[0]);
@@ -154,7 +155,7 @@ describe('Selector service test suite', () => {
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual({});
+          expect(item).toEqual(undefined);
           break;
         case 1:
           expect(item).toEqual(avengers[2]);
@@ -181,13 +182,13 @@ describe('Selector service test suite', () => {
     selector.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
-          expect(item).toEqual({});
+          expect(item).toEqual(undefined);
           break;
         case 1:
           expect(item).toEqual(avengers[2]);
           break;
         case 2:
-          expect(item).toEqual({});
+          expect(item).toEqual(undefined);
           break;
         case 3:
           expect(item).toEqual(asgardians[1]);
