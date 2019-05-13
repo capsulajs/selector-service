@@ -1,5 +1,5 @@
 import { Selector as SelectorInterface } from '../../src/api/Selector';
-import { avengers, beatles, Character, SimpleCharacterKey } from '../mocks/items';
+import { avengers, beatles, Character, ComplexCharacterKey, SimpleCharacterKey } from '../mocks/items';
 import { Selector } from '../../src';
 import { errorMessages, validationMessages } from '../../src/helpers/messages';
 
@@ -10,29 +10,27 @@ describe('Selector service test suite', () => {
     selector = new Selector<Character, SimpleCharacterKey>();
   });
 
-  it('Call setItems with items and get items at subscription after one emission', async (done) => {
+  it('Call setItems with items and get items at subscription after one emission', async () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
-    selector.items$({}).subscribe((items: any) => {
+    selector.items$({}).subscribe((items) => {
       expect(items).toEqual(beatles);
-      done();
     });
   });
 
-  it('Call setItems with items successively and get items after subscription', async (done) => {
+  it('Call setItems with items successively and get items after subscription', async () => {
     expect.assertions(2);
     await selector.setItems({ items: beatles });
 
     let count = 0;
 
-    selector.items$({}).subscribe((items: any) => {
+    selector.items$({}).subscribe((items) => {
       switch (count) {
         case 0:
           expect(items).toEqual(beatles);
           break;
         case 1:
           expect(items).toEqual(avengers);
-          done();
       }
       count = count + 1;
     });
@@ -48,13 +46,12 @@ describe('Selector service test suite', () => {
     return expect(selector.setItems({ items })).rejects.toEqual(new Error(validationMessages.invalidSetItemsRequest));
   });
 
-  it('selectItem selects one of the stored items in the Selector by key', async (done) => {
+  it('selectItem selects one of the stored items in the Selector by key', async () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
     await selector.selectItem({ key: { name: 'Paul' } });
-    selector.selectedItem$({}).subscribe((item: any) => {
+    selector.selectedItem$({}).subscribe((item) => {
       expect(item).toEqual(beatles[1]);
-      done();
     });
   });
 
@@ -64,7 +61,7 @@ describe('Selector service test suite', () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
     // @ts-ignore
-    await expect(selector.selectItem({ key })).rejects.toEqual(new Error(validationMessages.invalidSelectItemRequest));
+    return expect(selector.selectItem({ key })).rejects.toEqual(new Error(validationMessages.invalidSelectItemRequest));
   });
 
   const nonExistentKeys = [{ test: 'test' }, { name: 'Freddy' }, { test: 'test', name: 'Ringo' }];
@@ -73,10 +70,19 @@ describe('Selector service test suite', () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
     // @ts-ignore
-    await expect(selector.selectItem({ key })).rejects.toEqual(new Error(errorMessages.itemNotFound));
+    return expect(selector.selectItem({ key })).rejects.toEqual(new Error(errorMessages.itemNotFound));
   });
 
-  it('selectedItems$ returns the selected item', async (done) => {
+  const nonExistentComplexKeys = [{ name: 'John', birth: 1941 }, { name: 'John', birth: 1940, test: 42 }];
+
+  it.each(nonExistentComplexKeys)('Call selectItem with a non-existent complex key: %j', async (key) => {
+    expect.assertions(1);
+    await selector.setItems({ items: beatles });
+    // @ts-ignore
+    return expect(selector.selectItem({ key })).rejects.toEqual(new Error(errorMessages.itemNotFound));
+  });
+
+  it('selectedItems$ returns the selected item', async () => {
     expect.assertions(4);
     await selector.setItems({ items: beatles });
     let count = 0;
@@ -93,7 +99,6 @@ describe('Selector service test suite', () => {
           break;
         case 3:
           expect(item).toEqual(beatles[2]);
-          done();
       }
       count = count + 1;
     });
@@ -102,11 +107,37 @@ describe('Selector service test suite', () => {
     await selector.selectItem({ key: { name: 'George' } });
   });
 
+  it('selectedItems$ returns the selected item (complex key)', async () => {
+    expect.assertions(4);
+    const selector_ = new Selector<Character, ComplexCharacterKey>();
+    await selector_.setItems({ items: beatles });
+    let count = 0;
+    selector_.selectedItem$({}).subscribe((item) => {
+      switch (count) {
+        case 0:
+          expect(item).toEqual({});
+          break;
+        case 1:
+          expect(item).toEqual(beatles[0]);
+          break;
+        case 2:
+          expect(item).toEqual(beatles[1]);
+          break;
+        case 3:
+          expect(item).toEqual(beatles[2]);
+      }
+      count = count + 1;
+    });
+    await selector_.selectItem({ key: { name: 'John', birth: 1940 } });
+    await selector_.selectItem({ key: { name: 'Paul', birth: 1942 } });
+    await selector_.selectItem({ key: { name: 'George', birth: 1943 } });
+  });
+
   it('Call selectItem with currently selected item', async () => {
     expect.assertions(1);
     await selector.setItems({ items: beatles });
     await selector.selectItem({ key: { name: 'Ringo' } });
-    await expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(
+    return expect(selector.selectItem({ key: { name: 'Ringo' } })).rejects.toEqual(
       new Error(errorMessages.itemAlreadySelected)
     );
   });
@@ -143,7 +174,7 @@ describe('Selector service test suite', () => {
     await selector.selectItem({ key: { name: 'Anthony Hopkins' } });
   });
 
-  it('Reset selectedItem$ after setItems if the selected item is not in the new set', async (done) => {
+  it('Reset selectedItem$ after setItems if the selected item is not in the new set', async () => {
     expect.assertions(4);
     await selector.setItems({ items: avengers });
     let count = 0;
@@ -160,7 +191,6 @@ describe('Selector service test suite', () => {
           break;
         case 3:
           expect(item).toEqual(asgardians[1]);
-          done();
       }
       count = count + 1;
     });

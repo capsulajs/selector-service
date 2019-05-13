@@ -1,12 +1,12 @@
-import { ItemsRequest, SelectedItemRequest, SelectItemRequest, SelectorInterface, SetItemsRequest } from './api';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { validationMessages, errorMessages } from './helpers/messages';
-import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
-import { map, take } from 'rxjs/operators';
+import { map, first } from 'rxjs/operators';
 import isMatch from 'lodash/isMatch';
 import isEmpty from 'lodash/isEmpty';
+import { ItemsRequest, SelectedItemRequest, SelectItemRequest, SelectorInterface, SetItemsRequest } from './api';
+import { validationMessages, errorMessages } from './helpers/messages';
+import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
 
-export class Selector<Item extends Key, Key> implements SelectorInterface<Item, Key> {
+export class Selector<Item extends Key, Key extends object> implements SelectorInterface<Item, Key> {
   private readonly data$: BehaviorSubject<Item[]>;
   private readonly selected$: BehaviorSubject<Item>;
 
@@ -27,7 +27,7 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
   }
 
   public items$(itemsRequest: ItemsRequest): Observable<Item[]> {
-    return this.data$;
+    return this.data$.asObservable();
   }
 
   public selectItem(selectItemRequest: SelectItemRequest<Key>): Promise<void> {
@@ -41,20 +41,20 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
         return reject(new Error(validationMessages.invalidSelectItemRequest));
       }
       // Reject case: Item is already selected
-      if (isMatch(this.selected$.getValue() as any, selectItemRequest.key as any)) {
+      if (isMatch(this.selected$.getValue(), selectItemRequest.key)) {
         return reject(new Error(errorMessages.itemAlreadySelected));
       }
 
       this.data$
         .pipe(
-          take(1),
+          first(),
           map((items) =>
             items.find((item: Item) => {
-              return isMatch(item as any, selectItemRequest.key as any);
+              return isMatch(item, selectItemRequest.key);
             })
           )
         )
-        .subscribe((item: any) => {
+        .subscribe((item: Item | undefined) => {
           if (!item) {
             // Rejection case: wanted Item not found
             return reject(new Error(errorMessages.itemNotFound));
@@ -66,13 +66,13 @@ export class Selector<Item extends Key, Key> implements SelectorInterface<Item, 
   }
 
   public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item> {
-    return this.selected$;
+    return this.selected$.asObservable();
   }
 
   private resetSelected(items: Item[]): void {
     const selected = this.selected$.getValue();
     if (!isEmpty(selected)) {
-      const shouldKeepSelection = items.some((item) => isMatch(item as any, selected as any));
+      const shouldKeepSelection = items.some((item) => isMatch(item, selected));
       if (!shouldKeepSelection) {
         this.selected$.next({} as Item);
       }

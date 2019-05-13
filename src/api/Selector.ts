@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
  * It takes two typed args: Key and Item.
  * Item is the type of the used object and Key is a subset of Item used to select a specific Item.
  */
-export interface Selector<Item extends Key, Key> {
+export interface Selector<Item extends Key, Key extends object> {
   /**
    * @typeparam SetItemsRequest
    * @return A Promise that resolves without specific information.
