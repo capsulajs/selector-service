@@ -109,10 +109,10 @@ describe('Selector service test suite', () => {
 
   it('selectedItems$ returns the selected item (complex key)', async () => {
     expect.assertions(4);
-    const selector_ = new Selector<Character, ComplexCharacterKey>();
-    await selector_.setItems({ items: beatles });
+    const selectorWithComplexKey = new Selector<Character, ComplexCharacterKey>();
+    await selectorWithComplexKey.setItems({ items: beatles });
     let count = 0;
-    selector_.selectedItem$({}).subscribe((item) => {
+    selectorWithComplexKey.selectedItem$({}).subscribe((item) => {
       switch (count) {
         case 0:
           expect(item).toEqual({});
@@ -128,9 +128,9 @@ describe('Selector service test suite', () => {
       }
       count = count + 1;
     });
-    await selector_.selectItem({ key: { name: 'John', birth: 1940 } });
-    await selector_.selectItem({ key: { name: 'Paul', birth: 1942 } });
-    await selector_.selectItem({ key: { name: 'George', birth: 1943 } });
+    await selectorWithComplexKey.selectItem({ key: { name: 'John', birth: 1940 } });
+    await selectorWithComplexKey.selectItem({ key: { name: 'Paul', birth: 1942 } });
+    await selectorWithComplexKey.selectItem({ key: { name: 'George', birth: 1943 } });
   });
 
   it('Call selectItem with currently selected item', async () => {
