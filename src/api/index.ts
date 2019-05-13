@@ -3,5 +3,6 @@ export {
   SetItemsRequest,
   ItemsRequest,
   SelectItemRequest,
+  SelectedItem,
   SelectedItemRequest,
 } from './Selector';

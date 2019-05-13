@@ -29,7 +29,7 @@ export interface Selector<Item extends Key, Key extends object> {
    * @typeparam SelectedItemRequest
    * @return An Observable sequence that describes updates of the selected item.
    */
-  selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item | undefined>;
+  selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<SelectedItem<Item>>;
 }
 
 export interface SetItemsRequest<Item> {
@@ -37,6 +37,8 @@ export interface SetItemsRequest<Item> {
 }
 
 export interface ItemsRequest {}
+
+export type SelectedItem<Item> = Item | undefined;
 
 export interface SelectItemRequest<Key> {
   /** Must be at least part of the item model */

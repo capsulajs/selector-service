@@ -1,7 +1,14 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, first } from 'rxjs/operators';
 import isMatch from 'lodash/isMatch';
-import { ItemsRequest, SelectedItemRequest, SelectItemRequest, SelectorInterface, SetItemsRequest } from './api';
+import {
+  ItemsRequest,
+  SelectedItemRequest,
+  SelectItemRequest,
+  SelectorInterface,
+  SetItemsRequest,
+  SelectedItem,
+} from './api';
 import { validationMessages, errorMessages } from './helpers/messages';
 import { isValidSelectRequest, isValidSetItemsRequest } from './helpers/validators';
 
@@ -64,7 +71,7 @@ export class Selector<Item extends Key, Key extends object> implements SelectorI
     });
   }
 
-  public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item | undefined> {
+  public selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<SelectedItem<Item>> {
     return this.selected$.asObservable();
   }
 
