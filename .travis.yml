@@ -13,8 +13,7 @@ install:
 script:
   - yarn lint
   - yarn test
-  # - yarn build
-  # - yarn doc
+  - yarn build
 
 notifications:
   email:

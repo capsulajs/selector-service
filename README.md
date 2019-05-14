@@ -7,7 +7,7 @@ inside a collection of data.
 
 ### Install
 
-`npm i @capsula-hub/selector-service` or `yarn add @capsula-hub/selector-service`
+`npm i @capsulajs/selector-service` or `yarn add @capsulajs/selector-service`
 
 ### API
 
@@ -23,7 +23,7 @@ inside a collection of data.
 This service takes two typed elements (`Item` and `Key`).
 
 ```typescript
-import { Selector } from '@capsula-hub/selector-service';
+import { Selector } from '@capsulajs/selector-service';
 
 interface Item {
   name: string;
