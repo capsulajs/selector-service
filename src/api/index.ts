@@ -1,7 +1,8 @@
 export {
   Selector as SelectorInterface,
-  SetItemsStreamRequest,
+  SetItemsRequest,
   ItemsRequest,
   SelectItemRequest,
+  SelectedItem,
   SelectedItemRequest,
 } from './Selector';

@@ -12,8 +12,8 @@ install:
 
 script:
   - yarn lint
+  - yarn test
   # - yarn build
-  # - yarn test
   # - yarn doc
 
 notifications:

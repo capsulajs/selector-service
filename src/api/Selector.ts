@@ -5,12 +5,9 @@ import { Observable } from 'rxjs';
  * It takes two typed args: Key and Item.
  * Item is the type of the used object and Key is a subset of Item used to select a specific Item.
  */
-export interface Selector<Item extends Key, Key> {
+export interface Selector<Item extends Key, Key extends object> {
   /**
    * @typeparam SetItemsRequest
-   *
-   * The provided stream must be an array of items to be able to perform the selection later.
-   *
    * @return A Promise that resolves without specific information.
    * Can be rejected in case of invalid argument is passed.
    */
@@ -32,14 +29,16 @@ export interface Selector<Item extends Key, Key> {
    * @typeparam SelectedItemRequest
    * @return An Observable sequence that describes updates of the selected item.
    */
-  selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<Item>;
+  selectedItem$(selectedItemRequest: SelectedItemRequest): Observable<SelectedItem<Item>>;
 }
 
 export interface SetItemsRequest<Item> {
-  items$: Observable<Item[]>;
+  items: Item[];
 }
 
 export interface ItemsRequest {}
+
+export type SelectedItem<Item> = Item | undefined;
 
 export interface SelectItemRequest<Key> {
   /** Must be at least part of the item model */
