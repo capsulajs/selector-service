@@ -1,12 +1,19 @@
 {
-  "name": "selector-service",
+  "name": "@capsulajs/selector-service",
   "version": "0.0.1",
   "description": "Selector service for the CapsulaHub https://github.com/capsulajs/capsula-hub",
-  "main": "index.js",
+  "main": "lib/index.js",
   "repository": "https://github.com/capsulajs/selector-service",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "capsulajs",
+    "capsula-hub"
+  ],
   "scripts": {
+    "build": "yarn clean && yarn build:lib",
+    "build:lib": "parcel build src/index.ts --out-dir lib/",
+    "clean": "rimraf lib",
     "lint": "yarn lint:md && yarn lint:ts",
     "lint:md": "remark . --output",
     "lint:ts": "tslint --project tsconfig.lint.json",
